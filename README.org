@@ -1,0 +1,59 @@
+* 项目简介
+- 运行在 Pico C SDK 环境中的 Simple FOC 示例
+- 通过修改 Arduino AVR Core, 提供一个基于 Pico C SDK 的 Arduino API 环境, 以运行 Simple FOC
+** 项目进度
+*** 已实现
+- SPI 传感器读取
+- I2C 传感器读取
+- BLDC 扭矩(电压)控制
+*** 未实现
+- 电流采样
+- 编码器
+* Modules 源码说明
+** Arduino-FOC-2.2
+- Simple FOC 源码, 基本没有改动
+** ArduinoCore-avr-1.8.7
+- Arduino AVR Core 源码, 部分替换为 Pico C SDK, 提供一个基于 C SDK 的 Arduino API 环境
+* 硬件与软件
+** 硬件
+- Pico 2
+- Pico 2 with Debug Probe
+- AS5600
+- MT6701
+- BLDC
+- Simple FOC mini
+** 软件
+- VSCode
+  - Raspberry Pi Pico Visual Studio Code extension
+- freeRTOS
+* 项目说明
+** 硬件初始化
+- Arduino 兼容层移植了部分初始化功能, 但引脚设置现阶段由接口函数完成
+** Pico C SDK 硬件资源
+*** PWM
+- 初始化由兼容层完成
+- Simple FOC 的 PWM 实例化中的引脚参数对应实际引脚
+*** UART
+- uart0
+- 用于 Simple FOC Commander
+- 波特率初始化由兼容层设置
+- 引脚初始化由接口函数设置
+*** SPI
+- spi0
+- 用于 SPI 传感器
+- 建议使用 SPI 传感器
+- Simple FOC 的传感器数据解算设置可能需要根据实际调整
+- 速度和模式由兼容层设置
+- 引脚初始化由接口函数设置
+*** I2C
+- 用于 I2C 传感器
+- 不建议使用 I2C 传感器
+- 速度由兼容层设置
+- 引脚初始化由接口函数设置
+*** GPIO
+- SPI 片选, 驱动板使能等不需要提前初始化, 兼容层提供 GPIO 初始化功能, 在 Simple FOC 示例中, 可使用引脚编号进行设置
+** 软件配置
+- SPI, I2C 可以 2 选 1
+* 开发与编译
+** freeRTOS
+- 启用了 freeRTOS, 需要替换 freeRTOS 路径为本机路径
