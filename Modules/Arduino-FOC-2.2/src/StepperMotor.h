@@ -31,13 +31,13 @@ class StepperMotor : public FOCMotor {
      *
      * @param driver StepperDriver class implementing all the hardware specific functions necessary PWM setting
      */
-    void linkDriver(StepperDriver* driver);
+    void linkDriver(StepperDriver *driver);
 
     /**
      * StepperDriver link:
      * - 4PWM  - L298N for example
      */
-    StepperDriver* driver;
+    StepperDriver *driver;
 
     /**  Motor hardware init function */
     void init() override;

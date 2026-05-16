@@ -14,7 +14,7 @@ void StepDirListener::init() {
 
 void StepDirListener::enableInterrupt(void (*doA)()) { attachInterrupt(digitalPinToInterrupt(pin_step), doA, CHANGE); }
 
-void StepDirListener::attach(float* variable) { attached_variable = variable; }
+void StepDirListener::attach(float *variable) { attached_variable = variable; }
 
 void StepDirListener::handle() {
     // read step status

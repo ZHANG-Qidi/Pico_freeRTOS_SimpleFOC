@@ -13,6 +13,8 @@
 
 #include "SPI.h"
 
+#include "pico/stdlib.h"
+
 SPIClass SPI;
 
 uint8_t SPIClass::initialized = 0;
@@ -64,8 +66,12 @@ void SPIClass::begin() {
 }
 */
 void SPIClass::begin() {
-    spi_init(spi0, 10 * 1000 * 1000);
-    spi_set_format(spi0, 8, SPI_CPOL_0, SPI_CPHA_1, SPI_MSB_FIRST);
+    spi_init(SPI_MASTER_NUM, 10 * 1000 * 1000);
+    spi_set_format(SPI_MASTER_NUM, 8, SPI_CPOL_0, SPI_CPHA_1, SPI_MSB_FIRST);
+    gpio_set_function(SPI_MASTER_MISO_IO, GPIO_FUNC_SPI);
+    gpio_set_function(SPI_MASTER_CS_IO, GPIO_FUNC_SIO);
+    gpio_set_function(SPI_MASTER_SCLK_IO, GPIO_FUNC_SPI);
+    gpio_set_function(SPI_MASTER_MOSI_IO, GPIO_FUNC_SPI);
 }
 
 void SPIClass::end() {

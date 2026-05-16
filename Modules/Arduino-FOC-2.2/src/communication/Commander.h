@@ -17,7 +17,7 @@ enum VerboseMode {
 };
 
 // callback function pointer definiton
-typedef void (*CommandCallback)(char*);  //!< command callback function pointer
+typedef void (*CommandCallback)(char *);  //!< command callback function pointer
 
 /**
  * Commander class implementing string communication protocol based on IDvalue (ex AB5.321 - command id `A`, sub-command id `B`,value `5.321`)
@@ -41,7 +41,7 @@ class Commander {
      * @param eol - the end of line sentinel character
      * @param echo - echo last typed character (for command line feedback)
      */
-    Commander(Stream& serial, char eol = '\n', bool echo = false);
+    Commander(Stream &serial, char eol = '\n', bool echo = false);
     Commander(char eol = '\n', bool echo = false);
 
     /**
@@ -66,7 +66,7 @@ class Commander {
      * @param reader - temporary stream to read user input
      * @param eol - temporary end of line sentinel
      */
-    void run(Stream& reader, char eol = '\n');
+    void run(Stream &reader, char eol = '\n');
     /**
      * Function reading the string of user input and firing callbacks that have been added to the commander
      * once the user has requested them - when he sends the command
@@ -78,7 +78,7 @@ class Commander {
      *
      * @param user_input - string of user inputs
      */
-    void run(char* user_input);
+    void run(char *user_input);
 
     /**
      *  Function adding a callback to the coomander withe the command id
@@ -86,14 +86,14 @@ class Commander {
      * @param onCommand  - function pointer void function(char*)
      * @param label      - string label to be displayed when scan command sent
      */
-    void add(char id, CommandCallback onCommand, char* label = nullptr);
+    void add(char id, CommandCallback onCommand, char *label = nullptr);
 
     // printing variables
     VerboseMode verbose = VerboseMode::user_friendly;  //!< flag signaling that the commands should output user understanable text
     uint8_t decimal_places = 3;                        //!< number of decimal places to be used when displaying numbers
 
     // monitoring functions
-    Stream* com_port = nullptr;  //!< Serial terminal variable if provided
+    Stream *com_port = nullptr;  //!< Serial terminal variable if provided
     char eol = '\n';             //!< end of line sentinel character
     bool echo = false;           //!< echo last typed character (for command line feedback)
     /**
@@ -141,7 +141,7 @@ class Commander {
      *  - Each of them can be set by sending 'IdSubidValue' - (ex. SM1.5 for setting sensor zero offset to 1.5f)
      *
      */
-    void motor(FOCMotor* motor, char* user_cmd);
+    void motor(FOCMotor *motor, char *user_cmd);
 
     /**
      * Low pass fileter command interface
@@ -149,7 +149,7 @@ class Commander {
      *  - It can be get by sending 'F'
      *  - It can be set by sending 'Fvalue' - (ex. F0.01 for settin Tf=0.01)
      */
-    void lpf(LowPassFilter* lpf, char* user_cmd);
+    void lpf(LowPassFilter *lpf, char *user_cmd);
     /**
      * PID controller command interface
      *  - It has several paramters (the letters can be changed in the commands.h file)
@@ -161,20 +161,20 @@ class Commander {
      *  - Each of them can be get by sening the command letter -(ex. 'D' - to get the D gain)
      *  - Each of them can be set by sending 'IDvalue' - (ex. I1.5 for setting I=1.5)
      */
-    void pid(PIDController* pid, char* user_cmd);
+    void pid(PIDController *pid, char *user_cmd);
     /**
      * Float variable scalar command interface
      *  - It only has one property - one float value
      *  - It can be get by sending an empty string '\n'
      *  - It can be set by sending 'value' - (ex. 0.01f for settin *value=0.01)
      */
-    void scalar(float* value, char* user_cmd);
+    void scalar(float *value, char *user_cmd);
 
    private:
     // Subscribed command callback variables
     CommandCallback call_list[20];  //!< array of command callback pointers - 20 is an arbitrary number
     char call_ids[20];              //!< added callback commands
-    char* call_label[20];           //!< added callback labels
+    char *call_label[20];           //!< added callback labels
     int call_count = 0;             //!< number callbacks that are subscribed
 
     // helping variable for serial communication reading
@@ -186,13 +186,13 @@ class Commander {
      *  print the string message only if verbose mode on
      *  @param message - message to be printed
      */
-    void printVerbose(const char* message);
+    void printVerbose(const char *message);
     /**
      *  Print the string message only if verbose mode on
      *  - Function handling the case for strings defined by F macro
      *  @param message - message to be printed
      */
-    void printVerbose(const __FlashStringHelper* message);
+    void printVerbose(const __FlashStringHelper *message);
     /**
      *  print the numbers to the serial with desired decimal point number
      *  @param message - number to be printed
@@ -201,13 +201,13 @@ class Commander {
 
     void print(const float number);
     void print(const int number);
-    void print(const char* message);
-    void print(const __FlashStringHelper* message);
+    void print(const char *message);
+    void print(const __FlashStringHelper *message);
     void print(const char message);
     void println(const float number);
     void println(const int number);
-    void println(const char* message);
-    void println(const __FlashStringHelper* message);
+    void println(const char *message);
+    void println(const __FlashStringHelper *message);
     void println(const char message);
 
     void printError();

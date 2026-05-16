@@ -61,7 +61,7 @@ MagneticSensorSPI::MagneticSensorSPI(MagneticSensorSPIConfig_s config, int cs) {
     data_start_bit = config.data_start_bit;          // for backwards compatibilty
 }
 
-void MagneticSensorSPI::init(SPIClass* _spi) {
+void MagneticSensorSPI::init(SPIClass *_spi) {
     spi = _spi;
     // 1MHz clock (AMS should be able to accept up to 10MHz)
     settings = SPISettings(clock_speed, MSBFIRST, spi_mode);

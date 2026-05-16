@@ -35,6 +35,7 @@
 #include "Arduino.h"
 #include "HardwareSerial_private.h"
 #include "arduino_interface.h"
+#include "pico/stdlib.h"
 
 // this next line disables the entire HardwareSerial.cpp,
 // this is so I can support Attiny series and any other chip without a uart
@@ -118,8 +119,8 @@ void HardwareSerial::_tx_udr_empty_irq(void) {
 void HardwareSerial::_tx_udr_empty_irq(void) {}
 
 void HardwareSerial::on_uart_irq(void) {
-    if (uart_is_readable(uart0)) {
-        unsigned char c = uart_getc(uart0);
+    if (uart_is_readable(UART_MASTER_NUM)) {
+        unsigned char c = uart_getc(UART_MASTER_NUM);
         rx_buffer_index_t i = (unsigned int)(_rx_buffer_head + 1) % SERIAL_RX_BUFFER_SIZE;
         // if we should be storing the received character into the location
         // just before the tail (meaning that the head would advance to the
@@ -130,16 +131,16 @@ void HardwareSerial::on_uart_irq(void) {
             _rx_buffer_head = i;
         }
     }
-    if (uart_is_writable(uart0)) {
+    if (uart_is_writable(UART_MASTER_NUM)) {
         if (_tx_buffer_head != _tx_buffer_tail) {
             // If interrupts are enabled, there must be more data in the output
             // buffer. Send the next byte
             unsigned char c = _tx_buffer[_tx_buffer_tail];
             _tx_buffer_tail = (_tx_buffer_tail + 1) % SERIAL_TX_BUFFER_SIZE;
-            uart_putc_raw(uart0, c);
+            uart_putc_raw(UART_MASTER_NUM, c);
         }
         if (_tx_buffer_head == _tx_buffer_tail) {
-            uart_set_irq_enables(uart0, true, false);
+            uart_set_irq_enables(UART_MASTER_NUM, true, false);
         }
     }
 }
@@ -186,10 +187,14 @@ void HardwareSerial::begin(unsigned long baud, byte config) {
     (void)baud;
     (void)config;
     _written = false;
-    uart_init(uart0, baud);
+    uart_init(UART_MASTER_NUM, baud);
+    // Set the TX and RX pins by using the function select on the GPIO
+    // Set datasheet for more information on function select
+    gpio_set_function(UART_MASTER_TX_IO, GPIO_FUNC_UART);
+    gpio_set_function(UART_MASTER_RX_IO, GPIO_FUNC_UART);
     irq_set_exclusive_handler(UART0_IRQ, on_uart_irq_static);
     irq_set_enabled(UART0_IRQ, true);
-    uart_set_irq_enables(uart0, true, false);
+    uart_set_irq_enables(UART_MASTER_NUM, true, false);
 }
 
 /*
@@ -330,7 +335,7 @@ size_t HardwareSerial::write(uint8_t c) {
     }
     _tx_buffer[_tx_buffer_head] = c;
     _tx_buffer_head = i;
-    uart_set_irq_enables(uart0, true, true);
+    uart_set_irq_enables(UART_MASTER_NUM, true, true);
     return 1;
 }
 

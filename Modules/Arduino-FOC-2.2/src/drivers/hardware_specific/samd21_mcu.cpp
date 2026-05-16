@@ -105,7 +105,7 @@ struct wo_association WO_associations[] = {
     {PORTB, 3, TC6_CH1, 1, TCC3_CH3, 3}};
 wo_association ASSOCIATION_NOT_FOUND = {NOT_A_PORT, 0, NOT_ON_TIMER, 0, NOT_ON_TIMER, 0};
 
-struct wo_association& getWOAssociation(EPortType port, uint32_t pin) {
+struct wo_association &getWOAssociation(EPortType port, uint32_t pin) {
     for (int i = 0; i < NUM_WO_ASSOCIATIONS; i++) {
         if (WO_associations[i].port == port && WO_associations[i].pin == pin) return WO_associations[i];
     }
@@ -114,7 +114,7 @@ struct wo_association& getWOAssociation(EPortType port, uint32_t pin) {
 
 EPioType getPeripheralOfPermutation(int permutation, int pin_position) { return ((permutation >> pin_position) & 0x01) == 0x1 ? PIO_TIMER_ALT : PIO_TIMER; }
 
-void syncTCC(Tcc* TCCx) {
+void syncTCC(Tcc *TCCx) {
     while (TCCx->SYNCBUSY.reg & TCC_SYNCBUSY_MASK);  // Wait for synchronization of registers between the clock domains
 }
 
@@ -152,7 +152,7 @@ void configureSAMDClock() {
  * pwm_frequency is fixed at 24kHz for now. We could go slower, but going
  * faster won't be possible without sacrificing resolution.
  */
-void configureTCC(tccConfiguration& tccConfig, long pwm_frequency, bool negate, float hw6pwm) {
+void configureTCC(tccConfiguration &tccConfig, long pwm_frequency, bool negate, float hw6pwm) {
     // TODO for the moment we ignore the frequency...
     if (!tccConfigured[tccConfig.tcc.tccn]) {
         uint32_t GCLK_CLKCTRL_ID_ofthistcc = -1;
@@ -182,7 +182,7 @@ void configureTCC(tccConfiguration& tccConfig, long pwm_frequency, bool negate, 
         tccConfigured[tccConfig.tcc.tccn] = true;
 
         if (tccConfig.tcc.tccn >= TCC_INST_NUM) {
-            Tc* tc = (Tc*)GetTC(tccConfig.tcc.chaninfo);
+            Tc *tc = (Tc *)GetTC(tccConfig.tcc.chaninfo);
             // disable
             tc->COUNT8.CTRLA.bit.ENABLE = 0;
             while (tc->COUNT8.STATUS.bit.SYNCBUSY == 1);
@@ -206,7 +206,7 @@ void configureTCC(tccConfiguration& tccConfig, long pwm_frequency, bool negate, 
             SIMPLEFOC_SAMD_DEBUG_SERIAL.println(tccConfig.tcc.tccn);
 #endif
         } else {
-            Tcc* tcc = (Tcc*)GetTC(tccConfig.tcc.chaninfo);
+            Tcc *tcc = (Tcc *)GetTC(tccConfig.tcc.chaninfo);
 
             uint8_t invenMask = ~(1 << tccConfig.tcc.chan);  // negate (invert) the signal if needed
             uint8_t invenVal = negate ? (1 << tccConfig.tcc.chan) : 0;
@@ -250,7 +250,7 @@ void configureTCC(tccConfiguration& tccConfig, long pwm_frequency, bool negate, 
         }
     } else if (tccConfig.tcc.tccn < TCC_INST_NUM) {
         // set invert bit for TCC channels in SW 6-PWM...
-        Tcc* tcc = (Tcc*)GetTC(tccConfig.tcc.chaninfo);
+        Tcc *tcc = (Tcc *)GetTC(tccConfig.tcc.chaninfo);
 
         tcc->CTRLA.bit.ENABLE = 0;
         while (tcc->SYNCBUSY.bit.ENABLE == 1);
@@ -286,7 +286,7 @@ void writeSAMDDutyCycle(int chaninfo, float dc) {
     uint8_t tccn = GetTCNumber(chaninfo);
     uint8_t chan = GetTCChannelNumber(chaninfo);
     if (tccn < TCC_INST_NUM) {
-        Tcc* tcc = (Tcc*)GetTC(chaninfo);
+        Tcc *tcc = (Tcc *)GetTC(chaninfo);
         // set via CC
         //		tcc->CC[chan].reg = (uint32_t)((SIMPLEFOC_SAMD_PWM_RESOLUTION-1) * dc);
         //		uint32_t chanbit = 0x1<<(TCC_SYNCBUSY_CC0_Pos+chan);
@@ -300,7 +300,7 @@ void writeSAMDDutyCycle(int chaninfo, float dc) {
         //		tcc->CTRLBSET.reg |= TCC_CTRLBSET_CMD(TCC_CTRLBSET_CMD_UPDATE_Val);
         //		while ( tcc->SYNCBUSY.bit.CTRLB > 0 );
     } else {
-        Tc* tc = (Tc*)GetTC(chaninfo);
+        Tc *tc = (Tc *)GetTC(chaninfo);
         tc->COUNT8.CC[chan].reg = (uint8_t)((SIMPLEFOC_SAMD_PWM_TC_RESOLUTION - 1) * dc);
         while (tc->COUNT8.STATUS.bit.SYNCBUSY == 1);
     }

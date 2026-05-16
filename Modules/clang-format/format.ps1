@@ -6,8 +6,11 @@ $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $config = Join-Path $scriptDir ".clang-format"
 $configArg = "--style=""file:$config"""
 
-# 3. 获取所有 C/C++ 文件
-$files = Get-ChildItem -Path $root -Recurse -File -Include *.c, *.h, *.cpp, *.hpp
+# 3. 获取所有 C/C++ 文件（仅排除 $root\build\）
+$buildDir = Join-Path $root "build"
+
+$files = Get-ChildItem -Path $root -Recurse -File -Include *.c, *.h, *.cpp, *.hpp |
+    Where-Object { $_.FullName -notlike "$buildDir\*" }
 
 foreach ($f in $files) {
     Write-Host "Formatting $($f.FullName)"

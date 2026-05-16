@@ -139,9 +139,6 @@ static void do_work(async_context_t* context, async_at_time_worker_t* worker) {
 async_at_time_worker_t worker_timeout = {.do_work = do_work};
 
 void main_task(__unused void* params) {
-    arduino_serial_init();
-    arduino_spi_init();
-    arduino_hi2c_init();
     setup();
     async_context_t* context = create_async_context();
     // start the worker running

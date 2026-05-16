@@ -39,12 +39,12 @@ FOCMotor::FOCMotor() {
 /**
     Sensor linking method
 */
-void FOCMotor::linkSensor(Sensor* _sensor) { sensor = _sensor; }
+void FOCMotor::linkSensor(Sensor *_sensor) { sensor = _sensor; }
 
 /**
     CurrentSense linking method
 */
-void FOCMotor::linkCurrentSense(CurrentSense* _current_sense) { current_sense = _current_sense; }
+void FOCMotor::linkCurrentSense(CurrentSense *_current_sense) { current_sense = _current_sense; }
 
 // shaft angle calculation
 float FOCMotor::shaftAngle() {
@@ -69,7 +69,7 @@ float FOCMotor::electricalAngle() {
  *  Monitoring functions
  */
 // function implementing the monitor_port setter
-void FOCMotor::useMonitoring(Print& print) {
+void FOCMotor::useMonitoring(Print &print) {
     monitor_port = &print;  // operate on the address of print
     if (monitor_port) monitor_port->println(F("MOT: Monitor enabled!"));
 }

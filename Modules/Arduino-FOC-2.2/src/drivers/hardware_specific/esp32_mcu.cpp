@@ -28,7 +28,7 @@
 // this library supports up to 4 motors
 typedef struct {
     int pinA;
-    mcpwm_dev_t* mcpwm_num;
+    mcpwm_dev_t *mcpwm_num;
     mcpwm_unit_t mcpwm_unit;
     mcpwm_operator_t mcpwm_operator;
     mcpwm_io_signals_t mcpwm_a;
@@ -37,7 +37,7 @@ typedef struct {
 } bldc_3pwm_motor_slots_t;
 typedef struct {
     int pin1A;
-    mcpwm_dev_t* mcpwm_num;
+    mcpwm_dev_t *mcpwm_num;
     mcpwm_unit_t mcpwm_unit;
     mcpwm_operator_t mcpwm_operator1;
     mcpwm_operator_t mcpwm_operator2;
@@ -48,7 +48,7 @@ typedef struct {
 } stepper_4pwm_motor_slots_t;
 typedef struct {
     int pin1pwm;
-    mcpwm_dev_t* mcpwm_num;
+    mcpwm_dev_t *mcpwm_num;
     mcpwm_unit_t mcpwm_unit;
     mcpwm_operator_t mcpwm_operator;
     mcpwm_io_signals_t mcpwm_a;
@@ -57,7 +57,7 @@ typedef struct {
 
 typedef struct {
     int pinAH;
-    mcpwm_dev_t* mcpwm_num;
+    mcpwm_dev_t *mcpwm_num;
     mcpwm_unit_t mcpwm_unit;
     mcpwm_operator_t mcpwm_operator1;
     mcpwm_operator_t mcpwm_operator2;
@@ -100,7 +100,7 @@ stepper_2pwm_motor_slots_t esp32_stepper_2pwm_motor_slots[4] = {
 // configuring high frequency pwm timer
 // a lot of help from this post from Paul Gauld
 // https://hackaday.io/project/169905-esp-32-bldc-robot-actuator-controller
-void _configureTimerFrequency(long pwm_frequency, mcpwm_dev_t* mcpwm_num, mcpwm_unit_t mcpwm_unit, float dead_zone = NOT_SET) {
+void _configureTimerFrequency(long pwm_frequency, mcpwm_dev_t *mcpwm_num, mcpwm_unit_t mcpwm_unit, float dead_zone = NOT_SET) {
     mcpwm_config_t pwm_config;
     pwm_config.counter_mode = MCPWM_UP_DOWN_COUNTER;     // Up-down counter (triangle wave)
     pwm_config.duty_mode = MCPWM_DUTY_MODE_0;            // Active HIGH

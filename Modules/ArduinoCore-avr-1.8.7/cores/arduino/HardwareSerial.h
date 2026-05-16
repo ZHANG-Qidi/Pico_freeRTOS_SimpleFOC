@@ -107,7 +107,6 @@ class HardwareSerial : public Stream {
     // Has any byte been written to the UART since begin()
     bool _written;
 
-    uint8_t rx_byte;
     volatile rx_buffer_index_t _rx_buffer_head;
     volatile rx_buffer_index_t _rx_buffer_tail;
     volatile tx_buffer_index_t _tx_buffer_head;

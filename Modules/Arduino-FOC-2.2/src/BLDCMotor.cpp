@@ -15,7 +15,7 @@ BLDCMotor::BLDCMotor(int pp, float _R) : FOCMotor() {
 /**
     Link the driver which controls the motor
 */
-void BLDCMotor::linkDriver(BLDCDriver* _driver) { driver = _driver; }
+void BLDCMotor::linkDriver(BLDCDriver *_driver) { driver = _driver; }
 
 // init hardware pins
 void BLDCMotor::init() {

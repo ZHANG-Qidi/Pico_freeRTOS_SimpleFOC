@@ -39,7 +39,7 @@ class StepDirListener {
      * Attach the value to be updated on each step receive
      * - no need to call getValue function
      */
-    void attach(float* variable);
+    void attach(float *variable);
 
     // variables
     int pin_step;  //!< step pin
@@ -47,7 +47,7 @@ class StepDirListener {
     long count;    //!< current counter value - should be set to 0 for homing
 
    private:
-    float* attached_variable = nullptr;  //!< pointer to the attached variable
+    float *attached_variable = nullptr;  //!< pointer to the attached variable
     float counter_to_value;              //!< step counter to value
     bool step_active = 0;                //!< current step pin status (HIGH/LOW) - debouncing variable
 };

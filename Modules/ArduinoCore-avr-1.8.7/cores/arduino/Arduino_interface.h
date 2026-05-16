@@ -5,29 +5,25 @@
 extern "C" {
 #endif
 
-// SPI Defines
-// We are going to use SPI 0, and allocate it to the following GPIO pins
-// Pins can be changed, see the GPIO function select table in the datasheet for information on GPIO assignments
-#define SPI_PORT spi0
-#define PIN_MISO 16
-#define PIN_CS 17
-#define PIN_SCK 18
-#define PIN_MOSI 19
+// I2C
+#define I2C_MASTER_NUM i2c0         /*!< I2C port number for master dev */
+#define I2C_MASTER_SCL_IO (5)       /*!< GPIO number used for I2C master clock */
+#define I2C_MASTER_SDA_IO (4)       /*!< GPIO number used for I2C master data  */
+#define I2C_MASTER_FREQ_HZ (400000) /*!< I2C master clock frequency */
 
-// I2C defines
-// Pins can be changed, see the GPIO function select table in the datasheet for information on GPIO assignments
-#define I2C_PORT i2c0
-#define I2C_SDA 4
-#define I2C_SCL 5
+// SPI
+#define SPI_MASTER_NUM spi0
+#define SPI_MASTER_MOSI_IO (19)
+#define SPI_MASTER_MISO_IO (16)
+#define SPI_MASTER_SCLK_IO (18)
+#define SPI_MASTER_CS_IO (17)
 
-// UART defines
-#define UART_ID uart0
-#define BAUD_RATE 115200
+// UART
+#define UART_MASTER_NUM uart0
+#define UART_MASTER_TX_IO (0)
+#define UART_MASTER_RX_IO (1)
 
-// Pins can be changed, see the GPIO function select table in the datasheet for information on GPIO assignments
-#define UART_TX_PIN 0
-#define UART_RX_PIN 1
-
+// PWM
 #define MOTOR_A (10)
 #define MOTOR_B (11)
 #define MOTOR_C (12)

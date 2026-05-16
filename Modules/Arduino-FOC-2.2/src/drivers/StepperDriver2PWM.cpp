@@ -1,6 +1,6 @@
 #include "StepperDriver2PWM.h"
 
-StepperDriver2PWM::StepperDriver2PWM(int _pwm1, int* _in1, int _pwm2, int* _in2, int en1, int en2) {
+StepperDriver2PWM::StepperDriver2PWM(int _pwm1, int *_in1, int _pwm2, int *_in2, int en1, int en2) {
     // Pin initialization
     pwm1 = _pwm1;     // phase 1 pwm pin number
     dir1a = _in1[0];  // phase 1 INA pin number

@@ -151,8 +151,6 @@ class SPISettings {
 
 class SPIClass {
    public:
-    SPIClass(void) {}
-
     // Initialize the SPI library
     static void begin();
 
@@ -250,12 +248,12 @@ class SPIClass {
     inline uint16_t transfer16(uint16_t data) {
         uint8_t tx[2] = {uint8_t(data >> 8), uint8_t(data & 0xFF)};
         uint8_t rx[2] = {0, 0};
-        spi_write_read_blocking(spi0, tx, rx, 2);
+        spi_write_read_blocking(SPI_MASTER_NUM, tx, rx, 2);
         return (uint16_t(rx[0]) << 8) | rx[1];
     }
-    inline static void transfer(void* buf, size_t count) {
+    inline static void transfer(void *buf, size_t count) {
         if (count == 0) return;
-        uint8_t* p = (uint8_t*)buf;
+        uint8_t *p = (uint8_t *)buf;
         SPDR = *p;
         while (--count > 0) {
             uint8_t out = *(p + 1);

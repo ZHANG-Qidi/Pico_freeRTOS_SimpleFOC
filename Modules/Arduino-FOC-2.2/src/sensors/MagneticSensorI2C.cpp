@@ -57,7 +57,7 @@ MagneticSensorI2C::MagneticSensorI2C(MagneticSensorI2CConfig_s config) {
     wire = &Wire;
 }
 
-void MagneticSensorI2C::init(TwoWire* _wire) {
+void MagneticSensorI2C::init(TwoWire *_wire) {
     wire = _wire;
 
     // I2C communication begin

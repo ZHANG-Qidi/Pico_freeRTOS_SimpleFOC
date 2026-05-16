@@ -1,6 +1,6 @@
 #include "Commander.h"
 
-Commander::Commander(Stream& serial, char eol, bool echo) {
+Commander::Commander(Stream &serial, char eol, bool echo) {
     com_port = &serial;
     this->eol = eol;
     this->echo = echo;
@@ -10,7 +10,7 @@ Commander::Commander(char eol, bool echo) {
     this->echo = echo;
 }
 
-void Commander::add(char id, CommandCallback onCommand, char* label) {
+void Commander::add(char id, CommandCallback onCommand, char *label) {
     call_list[call_count] = onCommand;
     call_ids[call_count] = id;
     call_label[call_count] = label;
@@ -22,8 +22,8 @@ void Commander::run() {
     run(*com_port, eol);
 }
 
-void Commander::run(Stream& serial, char eol) {
-    Stream* tmp = com_port;  // save the serial instance
+void Commander::run(Stream &serial, char eol) {
+    Stream *tmp = com_port;  // save the serial instance
     char eol_tmp = this->eol;
     this->eol = eol;
     com_port = &serial;
@@ -53,7 +53,7 @@ void Commander::run(Stream& serial, char eol) {
     this->eol = eol_tmp;
 }
 
-void Commander::run(char* user_input) {
+void Commander::run(char *user_input) {
     // execute the user command
     char id = user_input[0];
     switch (id) {
@@ -96,7 +96,7 @@ void Commander::run(char* user_input) {
     }
 }
 
-void Commander::motor(FOCMotor* motor, char* user_command) {
+void Commander::motor(FOCMotor *motor, char *user_command) {
     // if target setting
     if (isDigit(user_command[0]) || user_command[0] == '-' || user_command[0] == '+') {
         printVerbose(F("Target: "));
@@ -385,7 +385,7 @@ void Commander::motor(FOCMotor* motor, char* user_command) {
     }
 }
 
-void Commander::pid(PIDController* pid, char* user_cmd) {
+void Commander::pid(PIDController *pid, char *user_cmd) {
     char cmd = user_cmd[0];
     bool GET = isSentinel(user_cmd[1]);
     float value = atof(&user_cmd[1]);
@@ -422,7 +422,7 @@ void Commander::pid(PIDController* pid, char* user_cmd) {
     }
 }
 
-void Commander::lpf(LowPassFilter* lpf, char* user_cmd) {
+void Commander::lpf(LowPassFilter *lpf, char *user_cmd) {
     char cmd = user_cmd[0];
     bool GET = isSentinel(user_cmd[1]);
     float value = atof(&user_cmd[1]);
@@ -439,7 +439,7 @@ void Commander::lpf(LowPassFilter* lpf, char* user_cmd) {
     }
 }
 
-void Commander::scalar(float* value, char* user_cmd) {
+void Commander::scalar(float *value, char *user_cmd) {
     bool GET = isSentinel(user_cmd[0]);
     if (!GET) *value = atof(user_cmd);
     println(*value);
@@ -462,11 +462,11 @@ void Commander::print(const float number) {
     if (!com_port || verbose == VerboseMode::nothing) return;
     com_port->print((float)number, (int)decimal_places);
 }
-void Commander::print(const char* message) {
+void Commander::print(const char *message) {
     if (!com_port || verbose == VerboseMode::nothing) return;
     com_port->print(message);
 }
-void Commander::print(const __FlashStringHelper* message) {
+void Commander::print(const __FlashStringHelper *message) {
     if (!com_port || verbose == VerboseMode::nothing) return;
     com_port->print(message);
 }
@@ -483,11 +483,11 @@ void Commander::println(const float number) {
     if (!com_port || verbose == VerboseMode::nothing) return;
     com_port->println((float)number, (int)decimal_places);
 }
-void Commander::println(const char* message) {
+void Commander::println(const char *message) {
     if (!com_port || verbose == VerboseMode::nothing) return;
     com_port->println(message);
 }
-void Commander::println(const __FlashStringHelper* message) {
+void Commander::println(const __FlashStringHelper *message) {
     if (!com_port || verbose == VerboseMode::nothing) return;
     com_port->println(message);
 }
@@ -496,10 +496,10 @@ void Commander::println(const char message) {
     com_port->println(message);
 }
 
-void Commander::printVerbose(const char* message) {
+void Commander::printVerbose(const char *message) {
     if (verbose == VerboseMode::user_friendly) print(message);
 }
-void Commander::printVerbose(const __FlashStringHelper* message) {
+void Commander::printVerbose(const __FlashStringHelper *message) {
     if (verbose == VerboseMode::user_friendly) print(message);
 }
 void Commander::printError() { println(F("err")); }

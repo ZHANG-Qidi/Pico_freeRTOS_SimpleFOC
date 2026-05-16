@@ -4,3 +4,5 @@ IndentWidth: 4
 TabWidth: 4
 UseTab: Never
 Language: Cpp
+PointerAlignment: Right
+SpaceAfterCStyleCast: false

@@ -71,14 +71,14 @@ class FOCMotor {
      *
      * @param sensor Sensor class  wrapper for the FOC algorihtm to read the motor angle and velocity
      */
-    void linkSensor(Sensor* sensor);
+    void linkSensor(Sensor *sensor);
 
     /**
      * Function linking a motor and current sensing
      *
      * @param current_sense CurrentSense class wrapper for the FOC algorihtm to read the motor current measurements
      */
-    void linkCurrentSense(CurrentSense* current_sense);
+    void linkCurrentSense(CurrentSense *current_sense);
 
     /**
      * Function initializing FOC algorithm
@@ -180,7 +180,7 @@ class FOCMotor {
      *
      * @param serial Monitoring Serial class reference
      */
-    void useMonitoring(Print& serial);
+    void useMonitoring(Print &serial);
 
     /**
      * Utility function intended to be used with serial plotter to monitor motor variables
@@ -197,14 +197,14 @@ class FOCMotor {
      * - MagneticSensor*
      * - HallSensor
      */
-    Sensor* sensor;
+    Sensor *sensor;
     /**
      * CurrentSense link
      */
-    CurrentSense* current_sense;
+    CurrentSense *current_sense;
 
     // monitoring functions
-    Print* monitor_port;  //!< Serial terminal variable if provided
+    Print *monitor_port;  //!< Serial terminal variable if provided
    private:
     // monitor counting variable
     unsigned int monitor_cnt = 0;  //!< counting variable

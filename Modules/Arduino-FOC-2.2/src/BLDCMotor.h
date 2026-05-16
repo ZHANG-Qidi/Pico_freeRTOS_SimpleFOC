@@ -26,14 +26,14 @@ class BLDCMotor : public FOCMotor {
      *
      * @param driver BLDCDriver class implementing all the hardware specific functions necessary PWM setting
      */
-    void linkDriver(BLDCDriver* driver);
+    void linkDriver(BLDCDriver *driver);
 
     /**
      * BLDCDriver link:
      * - 3PWM
      * - 6PWM
      */
-    BLDCDriver* driver;
+    BLDCDriver *driver;
 
     /**  Motor hardware init function */
     void init() override;

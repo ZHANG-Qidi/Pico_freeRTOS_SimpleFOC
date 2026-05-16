@@ -32,7 +32,6 @@ volatile uint8_t SPCR;
 volatile uint8_t SPSR;
 volatile uint8_t SPDR;
 
-// delayMicroseconds using DWT cycle counter
 void delayMicroseconds(unsigned int us) { sleep_us(us); }
 
 // delay with FreeRTOS awareness
@@ -44,13 +43,10 @@ void delay(unsigned long ms) {
     }
 }
 
-// micros() using DWT
 unsigned long micros(void) { return (unsigned long)time_us_64(); }
 
-// digitalWrite using pin number encoding (port = pin/16, bit = pin%16)
 void digitalWrite(uint8_t pin, uint8_t val) { gpio_put(pin, val); }
 
-// pinMode dummy (not implemented)
 void pinMode(uint8_t pin, uint8_t mode) {
     gpio_init(pin);
     switch (mode) {
@@ -72,7 +68,6 @@ void pinMode(uint8_t pin, uint8_t mode) {
     }
 }
 
-// analogWrite using TIM PWM
 void analogWrite(uint8_t pin, int value) {
     if (value < 0) value = 0;
     if (value > 255) value = 255;

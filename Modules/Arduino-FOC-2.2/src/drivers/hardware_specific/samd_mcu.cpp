@@ -15,7 +15,7 @@ bool tccConfigured[TCC_INST_NUM + TC_INST_NUM];
 /**
  * Attach the TCC to the pin
  */
-bool attachTCC(tccConfiguration& tccConfig) {
+bool attachTCC(tccConfiguration &tccConfig) {
     if (numTccPinConfigurations >= SIMPLEFOC_SAMD_MAX_TCC_PINCONFIGURATIONS) return false;
     pinMode(tccConfig.pin, OUTPUT);
 
@@ -33,14 +33,14 @@ int getPermutationNumber(int pins) {
 /**
  * Check if the configuration is in use already.
  */
-bool inUse(tccConfiguration& tccConfig) {
+bool inUse(tccConfiguration &tccConfig) {
     for (int i = 0; i < numTccPinConfigurations; i++) {
         if (tccPinConfigurations[i].tcc.chaninfo == tccConfig.tcc.chaninfo) return true;
     }
     return false;
 }
 
-tccConfiguration* getTccPinConfiguration(uint8_t pin) {
+tccConfiguration *getTccPinConfiguration(uint8_t pin) {
     for (int i = 0; i < numTccPinConfigurations; i++)
         if (tccPinConfigurations[i].pin == pin) return &tccPinConfigurations[i];
     return NULL;
@@ -55,8 +55,8 @@ tccConfiguration getTCCChannelNr(int pin, EPioType peripheral) {
     result.peripheral = peripheral;
     result.tcc.tccn = -2;
     result.tcc.chan = -2;
-    const PinDescription& pinDesc = g_APinDescription[pin];
-    struct wo_association& association = getWOAssociation(pinDesc.ulPort, pinDesc.ulPin);
+    const PinDescription &pinDesc = g_APinDescription[pin];
+    struct wo_association &association = getWOAssociation(pinDesc.ulPort, pinDesc.ulPin);
     if (association.port == NOT_A_PORT) return result;  // could not find the port/pin
     if (peripheral == PIO_TIMER) {
         result.tcc.chaninfo = association.tccE;
@@ -74,8 +74,8 @@ tccConfiguration getTCCChannelNr(int pin, EPioType peripheral) {
     return result;
 }
 
-bool checkPeripheralPermutationSameTCC6(tccConfiguration& pinAh, tccConfiguration& pinAl, tccConfiguration& pinBh, tccConfiguration& pinBl, tccConfiguration& pinCh,
-                                        tccConfiguration& pinCl) {
+bool checkPeripheralPermutationSameTCC6(tccConfiguration &pinAh, tccConfiguration &pinAl, tccConfiguration &pinBh, tccConfiguration &pinBl, tccConfiguration &pinCh,
+                                        tccConfiguration &pinCl) {
     if (inUse(pinAh) || inUse(pinAl) || inUse(pinBh) || inUse(pinBl) || inUse(pinCh) || inUse(pinCl)) return false;
 
     if (pinAh.tcc.tccn < 0 || pinAh.tcc.tccn != pinAl.tcc.tccn || pinAh.tcc.tccn != pinBh.tcc.tccn || pinAh.tcc.tccn != pinBl.tcc.tccn || pinAh.tcc.tccn != pinCh.tcc.tccn ||
@@ -104,8 +104,8 @@ bool checkPeripheralPermutationCompatible(tccConfiguration pins[], uint8_t num) 
     return true;
 }
 
-bool checkPeripheralPermutationCompatible6(tccConfiguration& pinAh, tccConfiguration& pinAl, tccConfiguration& pinBh, tccConfiguration& pinBl, tccConfiguration& pinCh,
-                                           tccConfiguration& pinCl) {
+bool checkPeripheralPermutationCompatible6(tccConfiguration &pinAh, tccConfiguration &pinAl, tccConfiguration &pinBh, tccConfiguration &pinBl, tccConfiguration &pinCh,
+                                           tccConfiguration &pinCl) {
     // check we're valid PWM pins
     if (pinAh.tcc.tccn < 0 || pinAl.tcc.tccn < 0 || pinBh.tcc.tccn < 0 || pinBl.tcc.tccn < 0 || pinCh.tcc.tccn < 0 || pinCl.tcc.tccn < 0) return false;
     // only TCC units for 6-PWM
@@ -493,7 +493,7 @@ int _configure6PWM(long pwm_frequency, float dead_zone, const int pinA_h, const 
  * @param pinB  phase B hardware pin number
  */
 void _writeDutyCycle2PWM(float dc_a, float dc_b, int pinA, int pinB) {
-    tccConfiguration* tccI = getTccPinConfiguration(pinA);
+    tccConfiguration *tccI = getTccPinConfiguration(pinA);
     writeSAMDDutyCycle(tccI->tcc.chaninfo, dc_a);
     tccI = getTccPinConfiguration(pinB);
     writeSAMDDutyCycle(tccI->tcc.chaninfo, dc_b);
@@ -513,7 +513,7 @@ void _writeDutyCycle2PWM(float dc_a, float dc_b, int pinA, int pinB) {
  * @param pinC  phase C hardware pin number
  */
 void _writeDutyCycle3PWM(float dc_a, float dc_b, float dc_c, int pinA, int pinB, int pinC) {
-    tccConfiguration* tccI = getTccPinConfiguration(pinA);
+    tccConfiguration *tccI = getTccPinConfiguration(pinA);
     writeSAMDDutyCycle(tccI->tcc.chaninfo, dc_a);
     tccI = getTccPinConfiguration(pinB);
     writeSAMDDutyCycle(tccI->tcc.chaninfo, dc_b);
@@ -537,7 +537,7 @@ void _writeDutyCycle3PWM(float dc_a, float dc_b, float dc_c, int pinA, int pinB,
  * @param pin2B  phase 2B hardware pin number
  */
 void _writeDutyCycle4PWM(float dc_1a, float dc_1b, float dc_2a, float dc_2b, int pin1A, int pin1B, int pin2A, int pin2B) {
-    tccConfiguration* tccI = getTccPinConfiguration(pin1A);
+    tccConfiguration *tccI = getTccPinConfiguration(pin1A);
     writeSAMDDutyCycle(tccI->tcc.chaninfo, dc_1a);
     tccI = getTccPinConfiguration(pin2A);
     writeSAMDDutyCycle(tccI->tcc.chaninfo, dc_2a);
@@ -572,8 +572,8 @@ void _writeDutyCycle4PWM(float dc_1a, float dc_1b, float dc_2a, float dc_2b, int
  *
  */
 void _writeDutyCycle6PWM(float dc_a, float dc_b, float dc_c, float dead_zone, int pinA_h, int pinA_l, int pinB_h, int pinB_l, int pinC_h, int pinC_l) {
-    tccConfiguration* tcc1 = getTccPinConfiguration(pinA_h);
-    tccConfiguration* tcc2 = getTccPinConfiguration(pinA_l);
+    tccConfiguration *tcc1 = getTccPinConfiguration(pinA_h);
+    tccConfiguration *tcc2 = getTccPinConfiguration(pinA_l);
     if (tcc1->tcc.chaninfo != tcc2->tcc.chaninfo) {
         // low-side on a different pin of same TCC - do dead-time in software...
         float ls = dc_a + (dead_zone * (SIMPLEFOC_SAMD_PWM_RESOLUTION - 1));
@@ -615,8 +615,8 @@ void _writeDutyCycle6PWM(float dc_a, float dc_b, float dc_c, float dead_zone, in
 void printAllPinInfos() {
     SIMPLEFOC_SAMD_DEBUG_SERIAL.println();
     for (uint8_t pin = 0; pin < PINS_COUNT; pin++) {
-        const PinDescription& pinDesc = g_APinDescription[pin];
-        wo_association& association = getWOAssociation(pinDesc.ulPort, pinDesc.ulPin);
+        const PinDescription &pinDesc = g_APinDescription[pin];
+        wo_association &association = getWOAssociation(pinDesc.ulPort, pinDesc.ulPin);
         SIMPLEFOC_SAMD_DEBUG_SERIAL.print("Pin ");
         if (pin < 10) SIMPLEFOC_SAMD_DEBUG_SERIAL.print("0");
         SIMPLEFOC_SAMD_DEBUG_SERIAL.print(pin);
@@ -697,7 +697,7 @@ void printAllPinInfos() {
     SIMPLEFOC_SAMD_DEBUG_SERIAL.println();
 }
 
-void printTCCConfiguration(tccConfiguration& info) {
+void printTCCConfiguration(tccConfiguration &info) {
     SIMPLEFOC_SAMD_DEBUG_SERIAL.print(info.pin);
     if (info.tcc.tccn >= TCC_INST_NUM)
         SIMPLEFOC_SAMD_DEBUG_SERIAL.print(":  TC Peripheral");

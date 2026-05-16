@@ -65,7 +65,7 @@ void MX_DMA_Init(void) {
  * @param None
  * @retval None
  */
-void MX_ADC1_Init(ADC_HandleTypeDef* hadc1) {
+void MX_ADC1_Init(ADC_HandleTypeDef *hadc1) {
     /* USER CODE BEGIN ADC1_Init 0 */
 
     /* USER CODE END ADC1_Init 0 */
@@ -132,7 +132,7 @@ void MX_ADC1_Init(ADC_HandleTypeDef* hadc1) {
  * @param None
  * @retval None
  */
-void MX_ADC2_Init(ADC_HandleTypeDef* hadc2) {
+void MX_ADC2_Init(ADC_HandleTypeDef *hadc2) {
     /* USER CODE BEGIN ADC2_Init 0 */
 
     /* USER CODE END ADC2_Init 0 */
@@ -185,7 +185,7 @@ void MX_ADC2_Init(ADC_HandleTypeDef* hadc2) {
  * @param hopamp-> OPAMP handle pointer
  * @retval None
  */
-void HAL_OPAMP_MspInit(OPAMP_HandleTypeDef* hopamp) {
+void HAL_OPAMP_MspInit(OPAMP_HandleTypeDef *hopamp) {
     GPIO_InitTypeDef GPIO_InitStruct = {0};
     if (hopamp->Instance == OPAMP1) {
         /* USER CODE BEGIN OPAMP1_MspInit 0 */
@@ -253,7 +253,7 @@ void HAL_OPAMP_MspInit(OPAMP_HandleTypeDef* hopamp) {
  * @param hopamp-> OPAMP handle pointer
  * @retval None
  */
-void HAL_OPAMP_MspDeInit(OPAMP_HandleTypeDef* hopamp) {
+void HAL_OPAMP_MspDeInit(OPAMP_HandleTypeDef *hopamp) {
     if (hopamp->Instance == OPAMP1) {
         /* USER CODE BEGIN OPAMP1_MspDeInit 0 */
 

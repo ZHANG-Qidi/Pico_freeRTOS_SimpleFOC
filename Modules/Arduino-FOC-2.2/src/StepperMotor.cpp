@@ -17,7 +17,7 @@ StepperMotor::StepperMotor(int pp, float _R) : FOCMotor() {
 /**
     Link the driver which controls the motor
 */
-void StepperMotor::linkDriver(StepperDriver* _driver) { driver = _driver; }
+void StepperMotor::linkDriver(StepperDriver *_driver) { driver = _driver; }
 
 // init hardware pins
 void StepperMotor::init() {

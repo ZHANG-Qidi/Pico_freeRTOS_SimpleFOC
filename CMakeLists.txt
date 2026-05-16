@@ -94,6 +94,7 @@ target_link_libraries(Pico_freeRTOS_SimpleFOC PRIVATE
     hardware_timer
     hardware_clocks
 )
+
 target_link_libraries(Pico_freeRTOS_SimpleFOC PRIVATE
     arduino_core
     arduino_foc

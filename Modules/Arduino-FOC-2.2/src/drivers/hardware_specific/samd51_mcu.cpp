@@ -97,7 +97,7 @@ wo_association ASSOCIATION_NOT_FOUND = {NOT_A_PORT, 0, NOT_ON_TIMER, 0, NOT_ON_T
 
 uint8_t TCC_CHANNEL_COUNT[] = {TCC0_CC_NUM, TCC1_CC_NUM, TCC2_CC_NUM, TCC3_CC_NUM, TCC4_CC_NUM};
 
-struct wo_association& getWOAssociation(EPortType port, uint32_t pin) {
+struct wo_association &getWOAssociation(EPortType port, uint32_t pin) {
     for (int i = 0; i < NUM_WO_ASSOCIATIONS; i++) {
         if (WO_associations[i].port == port && WO_associations[i].pin == pin) return WO_associations[i];
     }
@@ -106,13 +106,13 @@ struct wo_association& getWOAssociation(EPortType port, uint32_t pin) {
 
 EPioType getPeripheralOfPermutation(int permutation, int pin_position) { return ((permutation >> pin_position) & 0x01) == 0x1 ? PIO_TIMER_ALT : PIO_TIMER; }
 
-void syncTCC(Tcc* TCCx) { while (TCCx->SYNCBUSY.reg & TCC_SYNCBUSY_MASK); }
+void syncTCC(Tcc *TCCx) { while (TCCx->SYNCBUSY.reg & TCC_SYNCBUSY_MASK); }
 
 void writeSAMDDutyCycle(int chaninfo, float dc) {
     uint8_t tccn = GetTCNumber(chaninfo);
     uint8_t chan = GetTCChannelNumber(chaninfo);
     if (tccn < TCC_INST_NUM) {
-        Tcc* tcc = (Tcc*)GetTC(chaninfo);
+        Tcc *tcc = (Tcc *)GetTC(chaninfo);
         // set via CCBUF
         while ((tcc->SYNCBUSY.vec.CC & (0x1 << chan)) > 0);
         tcc->CCBUF[chan].reg = (uint32_t)((SIMPLEFOC_SAMD_PWM_RESOLUTION - 1) * dc);  // TODO pwm frequency!
@@ -178,7 +178,7 @@ void configureSAMDClock() {
  * pwm_frequency is fixed at 24kHz for now. We could go slower, but going
  * faster won't be possible without sacrificing resolution.
  */
-void configureTCC(tccConfiguration& tccConfig, long pwm_frequency, bool negate, float hw6pwm) {
+void configureTCC(tccConfiguration &tccConfig, long pwm_frequency, bool negate, float hw6pwm) {
     // TODO for the moment we ignore the frequency...
     if (!tccConfigured[tccConfig.tcc.tccn]) {
         uint32_t GCLK_CLKCTRL_ID_ofthistcc = GCLK_CLKCTRL_IDs[tccConfig.tcc.tccn];
@@ -187,7 +187,7 @@ void configureTCC(tccConfiguration& tccConfig, long pwm_frequency, bool negate, 
     }
 
     if (tccConfig.tcc.tccn < TCC_INST_NUM) {
-        Tcc* tcc = (Tcc*)GetTC(tccConfig.tcc.chaninfo);
+        Tcc *tcc = (Tcc *)GetTC(tccConfig.tcc.chaninfo);
 
         tcc->CTRLA.bit.ENABLE = 0;              // switch off tcc
         while (tcc->SYNCBUSY.bit.ENABLE == 1);  // wait for sync
@@ -233,7 +233,7 @@ void configureTCC(tccConfiguration& tccConfig, long pwm_frequency, bool negate, 
         SIMPLEFOC_SAMD_DEBUG_SERIAL.println("]");
 #endif
     } else if (tccConfig.tcc.tccn >= TCC_INST_NUM) {
-        Tc* tc = (Tc*)GetTC(tccConfig.tcc.chaninfo);
+        Tc *tc = (Tc *)GetTC(tccConfig.tcc.chaninfo);
 
         // disable
         // tc->COUNT8.CTRLA.bit.ENABLE = 0;

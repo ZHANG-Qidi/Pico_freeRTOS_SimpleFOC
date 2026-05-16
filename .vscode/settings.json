@@ -45,6 +45,6 @@
     "raspberry-pi-pico.ninjaPath": "${HOME}/.pico-sdk/ninja/v1.12.1/ninja",
     "clangd.arguments": [
         "--compile-commands-dir=build",
-        "--query-driver=${userHome}/.pico-sdk/toolchain/14_2_Rel1/bin/arm-none-eabi-*",
+        "--query-driver=${userHome}/.pico-sdk/toolchain/14_2_Rel1/bin/arm-none-eabi-*"
     ]
 }

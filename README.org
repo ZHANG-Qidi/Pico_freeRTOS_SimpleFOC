@@ -28,33 +28,17 @@
 - freeRTOS
 * 项目说明
 ** 硬件初始化
-- Arduino 兼容层移植了部分初始化功能, 但引脚设置现阶段由接口函数完成
+- Arduino 兼容层移植了部分初始化功能
 ** Pico C SDK 硬件资源
 *** PWM
-- 初始化由兼容层完成
-- Simple FOC 的 PWM 实例化中的引脚参数对应实际引脚
 *** UART
-- uart0
 - 用于 Simple FOC Commander
-- 波特率初始化由兼容层设置
-- 引脚初始化由接口函数设置
 *** SPI
-- spi0
 - 用于 SPI 传感器
 - 建议使用 SPI 传感器
 - Simple FOC 的传感器数据解算设置可能需要根据实际调整
-- 速度和模式由兼容层设置
-- 引脚初始化由接口函数设置
 *** I2C
-- i2c0
 - 用于 I2C 传感器
 - 不建议使用 I2C 传感器
-- 速度由兼容层设置
-- 引脚初始化由接口函数设置
 *** GPIO
-- SPI 片选, 驱动板使能等不需要提前初始化, 兼容层提供 GPIO 初始化功能, 在 Simple FOC 示例中, 可使用引脚编号进行设置
-** 软件配置
-- SPI, I2C 可以 2 选 1
-* 开发与编译
-** freeRTOS
-- 启用了 freeRTOS, 需要替换 freeRTOS 路径为本机路径
+- Arduino_interface.h

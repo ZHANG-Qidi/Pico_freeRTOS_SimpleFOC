@@ -73,15 +73,15 @@ extern uint8_t numTccPinConfigurations;
 extern bool SAMDClockConfigured;
 extern bool tccConfigured[TCC_INST_NUM + TC_INST_NUM];
 
-struct wo_association& getWOAssociation(EPortType port, uint32_t pin);
+struct wo_association &getWOAssociation(EPortType port, uint32_t pin);
 void writeSAMDDutyCycle(int chaninfo, float dc);
 void configureSAMDClock();
-void configureTCC(tccConfiguration& tccConfig, long pwm_frequency, bool negate = false, float hw6pwm = -1);
-__inline__ void syncTCC(Tcc* TCCx) __attribute__((always_inline, unused));
+void configureTCC(tccConfiguration &tccConfig, long pwm_frequency, bool negate = false, float hw6pwm = -1);
+__inline__ void syncTCC(Tcc *TCCx) __attribute__((always_inline, unused));
 EPioType getPeripheralOfPermutation(int permutation, int pin_position);
 
 #ifdef SIMPLEFOC_SAMD_DEBUG
-void printTCCConfiguration(tccConfiguration& info);
+void printTCCConfiguration(tccConfiguration &info);
 void printAllPinInfos();
 #endif
 

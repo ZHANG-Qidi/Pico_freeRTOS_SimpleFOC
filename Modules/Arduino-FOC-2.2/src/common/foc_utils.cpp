@@ -69,9 +69,9 @@ float _sqrtApprox(float number) {  // low in fat
 
     // x = number * 0.5F;
     y = number;
-    i = *(long*)&y;
+    i = *(long *)&y;
     i = 0x5f375a86 - (i >> 1);
-    y = *(float*)&i;
+    y = *(float *)&i;
     // y = y * ( f - ( x * y * y ) ); // better precision
     return number * y;
 }

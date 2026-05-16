@@ -31,8 +31,10 @@ extern "C" {
 */
 }
 
+#include "Arduino_interface.h"
 #include "Wire.h"
 #include "hardware/i2c.h"
+#include "pico/stdlib.h"
 
 // Initialize Class Variables //////////////////////////////////////////////////
 
@@ -51,11 +53,9 @@ void (*TwoWire::user_onReceive)(int);
 
 // Constructors ////////////////////////////////////////////////////////////////
 
-TwoWire::TwoWire(void) {}
+TwoWire::TwoWire() {}
 
 // Public Methods //////////////////////////////////////////////////////////////
-
-void TwoWire::I2C_Reset(void) {}
 
 void TwoWire::begin(void) {
     rxBufferIndex = 0;
@@ -70,7 +70,11 @@ void TwoWire::begin(void) {
     twi_attachSlaveRxEvent(onReceiveService);  // default callback must exist
      */
 
-    i2c_init(i2c0, 400 * 1000);
+    i2c_init(I2C_MASTER_NUM, I2C_MASTER_FREQ_HZ);
+    gpio_set_function(I2C_MASTER_SDA_IO, GPIO_FUNC_I2C);
+    gpio_set_function(I2C_MASTER_SCL_IO, GPIO_FUNC_I2C);
+    gpio_pull_up(I2C_MASTER_SDA_IO);
+    gpio_pull_up(I2C_MASTER_SCL_IO);
 }
 
 void TwoWire::begin(uint8_t address) {
@@ -172,8 +176,7 @@ uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint32_t iaddres
     uint8_t read = twi_readFrom(address, rxBuffer, quantity, sendStop);
      */
     uint8_t read = quantity;
-    I2C_Reset();
-    i2c_read_blocking(i2c0, address, rxBuffer, quantity, false);
+    i2c_read_blocking(I2C_MASTER_NUM, address, rxBuffer, quantity, false);
     // set rx buffer iterator vars
     rxBufferIndex = 0;
     rxBufferLength = read;
@@ -185,9 +188,9 @@ uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint8_t sendStop
     return requestFrom((uint8_t)address, (uint8_t)quantity, (uint32_t)0, (uint8_t)0, (uint8_t)sendStop);
 }
 
-uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity) { return requestFrom((uint8_t)address, (uint8_t)quantity, (uint8_t)true); }
+uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity) { return requestFrom((uint8_t)address, (uint8_t)quantity, (uint8_t) true); }
 
-uint8_t TwoWire::requestFrom(int address, int quantity) { return requestFrom((uint8_t)address, (uint8_t)quantity, (uint8_t)true); }
+uint8_t TwoWire::requestFrom(int address, int quantity) { return requestFrom((uint8_t)address, (uint8_t)quantity, (uint8_t) true); }
 
 uint8_t TwoWire::requestFrom(int address, int quantity, int sendStop) { return requestFrom((uint8_t)address, (uint8_t)quantity, (uint8_t)sendStop); }
 
@@ -222,8 +225,7 @@ uint8_t TwoWire::endTransmission(uint8_t sendStop) {
     uint8_t ret = twi_writeTo(txAddress, txBuffer, txBufferLength, 1, sendStop);
      */
     uint8_t ret = 0;
-    I2C_Reset();
-    i2c_write_blocking(i2c0, txAddress, txBuffer, txBufferLength, false);
+    i2c_write_blocking(I2C_MASTER_NUM, txAddress, txBuffer, txBufferLength, false);
     // reset tx buffer iterator vars
     txBufferIndex = 0;
     txBufferLength = 0;
@@ -266,7 +268,7 @@ size_t TwoWire::write(uint8_t data) {
 // must be called in:
 // slave tx event callback
 // or after beginTransmission(address)
-size_t TwoWire::write(const uint8_t* data, size_t quantity) {
+size_t TwoWire::write(const uint8_t *data, size_t quantity) {
     if (transmitting) {
         // in master transmitter mode
         for (size_t i = 0; i < quantity; ++i) {
@@ -320,7 +322,7 @@ void TwoWire::flush(void) {
 }
 
 // behind the scenes function that is called when data is received
-void TwoWire::onReceiveService(uint8_t* inBytes, int numBytes) {
+void TwoWire::onReceiveService(uint8_t *inBytes, int numBytes) {
     // don't bother if user hasn't registered a callback
     if (!user_onReceive) {
         return;
@@ -365,4 +367,4 @@ void TwoWire::onRequest(void (*function)(void)) { user_onRequest = function; }
 
 // Preinstantiate Objects //////////////////////////////////////////////////////
 
-TwoWire Wire;
+TwoWire Wire = TwoWire();

@@ -25,7 +25,6 @@
 
 #include <inttypes.h>
 
-#include "Arduino_interface.h"
 #include "Stream.h"
 
 #define BUFFER_LENGTH 32
@@ -50,10 +49,8 @@ class TwoWire : public Stream {
     static void onRequestService(void);
     static void onReceiveService(uint8_t *, int);
 
-    void I2C_Reset(void);
-
    public:
-    TwoWire(void);
+    TwoWire();
     void begin();
     void begin(uint8_t);
     void begin(int);
