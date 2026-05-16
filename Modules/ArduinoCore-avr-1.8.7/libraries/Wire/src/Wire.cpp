@@ -70,7 +70,7 @@ void TwoWire::begin(void) {
     twi_attachSlaveRxEvent(onReceiveService);  // default callback must exist
      */
 
-    i2c_init(i2c0, 100 * 1000);
+    i2c_init(i2c0, 400 * 1000);
 }
 
 void TwoWire::begin(uint8_t address) {
@@ -185,9 +185,9 @@ uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint8_t sendStop
     return requestFrom((uint8_t)address, (uint8_t)quantity, (uint32_t)0, (uint8_t)0, (uint8_t)sendStop);
 }
 
-uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity) { return requestFrom((uint8_t)address, (uint8_t)quantity, (uint8_t) true); }
+uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity) { return requestFrom((uint8_t)address, (uint8_t)quantity, (uint8_t)true); }
 
-uint8_t TwoWire::requestFrom(int address, int quantity) { return requestFrom((uint8_t)address, (uint8_t)quantity, (uint8_t) true); }
+uint8_t TwoWire::requestFrom(int address, int quantity) { return requestFrom((uint8_t)address, (uint8_t)quantity, (uint8_t)true); }
 
 uint8_t TwoWire::requestFrom(int address, int quantity, int sendStop) { return requestFrom((uint8_t)address, (uint8_t)quantity, (uint8_t)sendStop); }
 

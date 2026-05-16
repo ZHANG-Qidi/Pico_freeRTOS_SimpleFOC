@@ -64,7 +64,7 @@ void SPIClass::begin() {
 }
 */
 void SPIClass::begin() {
-    spi_init(spi0, 1000 * 1000);
+    spi_init(spi0, 10 * 1000 * 1000);
     spi_set_format(spi0, 8, SPI_CPOL_0, SPI_CPHA_1, SPI_MSB_FIRST);
 }
 

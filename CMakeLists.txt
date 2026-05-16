@@ -6,7 +6,7 @@ set(FREERTOS_KERNEL_PATH "D:/HOME/workspace - pico/FreeRTOS/FreeRTOS-KernelV11.3
 
 set(FREERTOS_VARIANT "one_core" CACHE STRING "Choose FreeRTOS variant")
 set_property(CACHE FREERTOS_VARIANT PROPERTY STRINGS one_core two_cores static)
-set(FREERTOS_VARIANT "one_core")
+set(FREERTOS_VARIANT "two_cores")
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
@@ -76,6 +76,7 @@ add_subdirectory(Modules/Arduino-FOC-2.2)
 
 add_executable(Pico_freeRTOS_SimpleFOC
     main.cpp
+    arduino_main.cpp
 )
 
 target_include_directories(Pico_freeRTOS_SimpleFOC PRIVATE

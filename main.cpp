@@ -4,11 +4,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <pico/async_context.h>
 #include <stdio.h>
 
+#include "Arduino.h"
 #include "Arduino_interface.h"
 #include "HardwareSerial.h"
-#include "SimpleFOC.h"
 #include "common/base_classes/Sensor.h"
 #include "hardware/clocks.h"
 #include "hardware/i2c.h"
@@ -94,13 +95,14 @@ void blink_task(__unused void* params) {
     bool on = false;
     printf("blink_task starts\n");
     init_led();
+    TickType_t last = xTaskGetTickCount();
     while (true) {
 #if configNUMBER_OF_CORES > 1
-        static int last_core_id = -1;
-        if (portGET_CORE_ID() != last_core_id) {
-            last_core_id = portGET_CORE_ID();
-            printf("blink task is on core %d\n", last_core_id);
-        }
+        // static int last_core_id = -1;
+        // if (portGET_CORE_ID() != last_core_id) {
+        //     last_core_id = portGET_CORE_ID();
+        //     printf("blink task is on core %d\n", last_core_id);
+        // }
 #endif
         set_led(on);
         on = !on;
@@ -112,7 +114,7 @@ void blink_task(__unused void* params) {
         // unless configNUMBER_OF_CORES > 1
         busy_wait_ms(LED_DELAY_MS);
 #else
-        sleep_ms(LED_DELAY_MS);
+        vTaskDelayUntil(&last, pdMS_TO_TICKS(200));
 #endif
     }
 }
@@ -120,20 +122,27 @@ void blink_task(__unused void* params) {
 
 // async workers run in their own thread when using async_context_freertos_t with priority WORKER_TASK_PRIORITY
 static void do_work(async_context_t* context, async_at_time_worker_t* worker) {
-    async_context_add_at_time_worker_in_ms(context, worker, 1000);
-    static uint32_t count = 0;
+    // async_context_add_at_time_worker_in_ms(context, worker, 1);
+    absolute_time_t next = delayed_by_ms(worker->next_time, 1);
+    async_context_add_at_time_worker_at(context, worker, next);
+    // static uint32_t count = 0;
     // printf("Hello from worker count=%u\n", count++);
 #if configNUMBER_OF_CORES > 1
-    static int last_core_id = -1;
-    if (portGET_CORE_ID() != last_core_id) {
-        last_core_id = portGET_CORE_ID();
-        printf("worker is on core %d\n", last_core_id);
-    }
+    // static int last_core_id = -1;
+    // if (portGET_CORE_ID() != last_core_id) {
+    //     last_core_id = portGET_CORE_ID();
+    //     printf("worker is on core %d\n", last_core_id);
+    // }
 #endif
+    loop();
 }
 async_at_time_worker_t worker_timeout = {.do_work = do_work};
 
 void main_task(__unused void* params) {
+    arduino_serial_init();
+    arduino_spi_init();
+    arduino_hi2c_init();
+    setup();
     async_context_t* context = create_async_context();
     // start the worker running
     async_context_add_at_time_worker_in_ms(context, &worker_timeout, 0);
@@ -148,22 +157,17 @@ void main_task(__unused void* params) {
     xTaskCreate(blink_task, "BlinkThread", BLINK_TASK_STACK_SIZE, NULL, BLINK_TASK_PRIORITY, NULL);
 #endif  // configSUPPORT_STATIC_ALLOCATION
 #endif  // USE_LED
-    int count = 0;
-    arduino_spi_init();
-    arduino_serial_init();
-    arduino_hi2c_init();
-    setup();
+    // int count = 0;
     while (true) {
 #if configNUMBER_OF_CORES > 1
-        static int last_core_id = -1;
-        if (portGET_CORE_ID() != last_core_id) {
-            last_core_id = portGET_CORE_ID();
-            printf("main task is on core %d\n", last_core_id);
-        }
+        // static int last_core_id = -1;
+        // if (portGET_CORE_ID() != last_core_id) {
+        //     last_core_id = portGET_CORE_ID();
+        //     printf("main task is on core %d\n", last_core_id);
+        // }
 #endif
         // printf("Hello from main task count=%u\n", count++);
-        vTaskDelay(1);
-        loop();
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
     async_context_deinit(context);
 }
@@ -187,76 +191,6 @@ void vLaunch(void) {
 
     /* Start the tasks and timer running. */
     vTaskStartScheduler();
-}
-
-// magnetic sensor instance - SPI
-// MagneticSensorSPI sensor = MagneticSensorSPI(AS5147_SPI, PIN_CS);
-// magnetic sensor instance - MagneticSensorI2C
-MagneticSensorI2C sensor = MagneticSensorI2C(AS5600_I2C);
-
-// BLDC motor & driver instance
-BLDCMotor motor = BLDCMotor(7);
-BLDCDriver3PWM driver = BLDCDriver3PWM(MOTOR_A, MOTOR_B, MOTOR_C, MOTOR_EN);
-
-// voltage set point variable
-float target_voltage = 2;
-// instantiate the commander
-Commander command = Commander(Serial);
-void doTarget(char* cmd) { command.scalar(&target_voltage, cmd); }
-
-void setup(void) {
-    // initialise magnetic sensor hardware
-    sensor.init();
-    // link the motor to the sensor
-    motor.linkSensor(&sensor);
-
-    // power supply voltage
-    driver.voltage_power_supply = 12;
-    driver.init();
-    motor.linkDriver(&driver);
-
-    // aligning voltage
-    motor.voltage_sensor_align = 5;
-    // choose FOC modulation (optional)
-    motor.foc_modulation = FOCModulationType::SpaceVectorPWM;
-    // set motion control loop to be used
-    motor.controller = MotionControlType::torque;
-
-    // use monitoring with serial
-    Serial.begin(115200);
-    // comment out if not needed
-    motor.useMonitoring(Serial);
-
-    // initialize motor
-    motor.init();
-    // align sensor and start FOC
-    motor.initFOC();
-
-    // add target command T
-    command.add('T', doTarget, (char*)"target voltage");
-
-    Serial.println(F("Motor ready."));
-    Serial.println(F("Set the target voltage using serial terminal:"));
-    _delay(1000);
-}
-
-void loop(void) {
-    // main FOC algorithm function
-    // the faster you run this function the better
-    // Arduino UNO loop  ~1kHz
-    // Bluepill loop ~10kHz
-    motor.loopFOC();
-
-    // Motion control function
-    // velocity, position or voltage (defined in motor.controller)
-    // this function can be run at much lower frequency than loopFOC() function
-    // You can also use motor.move() and set the motor.target in the code
-    motor.move(target_voltage);
-
-    // user communication
-    command.run();
-    // float angle = sensor.getAngle();
-    // Serial.println(angle);
 }
 
 int main(void) {
