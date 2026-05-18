@@ -90,7 +90,15 @@ void TwoWire::begin(int address) { begin((uint8_t)address); }
 /*
 void TwoWire::end(void) { twi_disable(); }
 */
-void TwoWire::end(void) {}
+void TwoWire::end(void) {
+    i2c_deinit(I2C_MASTER_NUM);
+    gpio_set_function(I2C_MASTER_SDA_IO, GPIO_FUNC_SIO);
+    gpio_set_function(I2C_MASTER_SCL_IO, GPIO_FUNC_SIO);
+    gpio_disable_pulls(I2C_MASTER_SDA_IO);
+    gpio_disable_pulls(I2C_MASTER_SCL_IO);
+    gpio_set_dir(I2C_MASTER_SDA_IO, GPIO_IN);
+    gpio_set_dir(I2C_MASTER_SCL_IO, GPIO_IN);
+}
 
 /*
 void TwoWire::setClock(uint32_t clock) { twi_setFrequency(clock); }
@@ -188,9 +196,9 @@ uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint8_t sendStop
     return requestFrom((uint8_t)address, (uint8_t)quantity, (uint32_t)0, (uint8_t)0, (uint8_t)sendStop);
 }
 
-uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity) { return requestFrom((uint8_t)address, (uint8_t)quantity, (uint8_t) true); }
+uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity) { return requestFrom((uint8_t)address, (uint8_t)quantity, (uint8_t)true); }
 
-uint8_t TwoWire::requestFrom(int address, int quantity) { return requestFrom((uint8_t)address, (uint8_t)quantity, (uint8_t) true); }
+uint8_t TwoWire::requestFrom(int address, int quantity) { return requestFrom((uint8_t)address, (uint8_t)quantity, (uint8_t)true); }
 
 uint8_t TwoWire::requestFrom(int address, int quantity, int sendStop) { return requestFrom((uint8_t)address, (uint8_t)quantity, (uint8_t)sendStop); }
 

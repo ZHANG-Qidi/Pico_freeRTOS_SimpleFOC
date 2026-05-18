@@ -98,5 +98,12 @@ void _configure3PWM(long pwm_frequency, const int pinA, const int pinB, const in
     analogWriteInit(pinA);
     analogWriteInit(pinB);
     analogWriteInit(pinC);
-    return;
+    uint sliceA = pwm_gpio_to_slice_num(pinA);
+    uint sliceB = pwm_gpio_to_slice_num(pinB);
+    uint sliceC = pwm_gpio_to_slice_num(pinC);
+    pwm_set_enabled(sliceA, false);
+    pwm_set_enabled(sliceB, false);
+    pwm_set_enabled(sliceC, false);
+    uint32_t mask = (1u << sliceA) | (1u << sliceB) | (1u << sliceC);
+    pwm_set_mask_enabled(mask);
 }

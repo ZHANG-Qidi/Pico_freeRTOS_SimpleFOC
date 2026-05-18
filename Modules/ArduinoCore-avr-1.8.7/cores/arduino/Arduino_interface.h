@@ -23,17 +23,6 @@ extern "C" {
 #define UART_MASTER_TX_IO (0)
 #define UART_MASTER_RX_IO (1)
 
-// PWM
-#define MOTOR_A (10)
-#define MOTOR_B (11)
-#define MOTOR_C (12)
-#define MOTOR_EN (13)
-
-void arduino_serial_init(void);
-void arduino_spi_init(void);
-void arduino_tim_init(void);
-void arduino_hi2c_init(void);
-
 #ifdef __cplusplus
 }
 #endif

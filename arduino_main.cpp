@@ -1,5 +1,10 @@
 #include "SimpleFOC.h"
 
+#define MOTOR_U (10)
+#define MOTOR_V (11)
+#define MOTOR_W (12)
+#define MOTOR_EN (13)
+
 // magnetic sensor instance - SPI
 MagneticSensorSPI sensor = MagneticSensorSPI(AS5147_SPI, SPI_MASTER_CS_IO);
 // magnetic sensor instance - MagneticSensorI2C
@@ -7,7 +12,7 @@ MagneticSensorSPI sensor = MagneticSensorSPI(AS5147_SPI, SPI_MASTER_CS_IO);
 
 // BLDC motor & driver instance
 BLDCMotor motor = BLDCMotor(7);
-BLDCDriver3PWM driver = BLDCDriver3PWM(MOTOR_A, MOTOR_B, MOTOR_C, MOTOR_EN);
+BLDCDriver3PWM driver = BLDCDriver3PWM(MOTOR_U, MOTOR_V, MOTOR_W, MOTOR_EN);
 
 // voltage set point variable
 float target_voltage = 2;

@@ -74,6 +74,7 @@ void SPIClass::begin() {
     gpio_set_function(SPI_MASTER_MOSI_IO, GPIO_FUNC_SPI);
 }
 
+/*
 void SPIClass::end() {
     uint8_t sreg = SREG;
     noInterrupts();  // Protect from a scheduler and prevent transactionBegin
@@ -88,6 +89,22 @@ void SPIClass::end() {
 #endif
     }
     SREG = sreg;
+}
+*/
+void SPIClass::end() {
+    spi_deinit(SPI_MASTER_NUM);
+    gpio_set_function(SPI_MASTER_MISO_IO, GPIO_FUNC_SIO);
+    gpio_set_function(SPI_MASTER_CS_IO, GPIO_FUNC_SIO);
+    gpio_set_function(SPI_MASTER_SCLK_IO, GPIO_FUNC_SIO);
+    gpio_set_function(SPI_MASTER_MOSI_IO, GPIO_FUNC_SIO);
+    gpio_set_dir(SPI_MASTER_MISO_IO, GPIO_IN);
+    gpio_set_dir(SPI_MASTER_CS_IO, GPIO_IN);
+    gpio_set_dir(SPI_MASTER_SCLK_IO, GPIO_IN);
+    gpio_set_dir(SPI_MASTER_MOSI_IO, GPIO_IN);
+    gpio_disable_pulls(SPI_MASTER_MISO_IO);
+    gpio_disable_pulls(SPI_MASTER_CS_IO);
+    gpio_disable_pulls(SPI_MASTER_SCLK_IO);
+    gpio_disable_pulls(SPI_MASTER_MOSI_IO);
 }
 
 // mapping of interrupt numbers to bits within SPI_AVR_EIMSK

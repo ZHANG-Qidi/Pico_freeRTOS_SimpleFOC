@@ -211,7 +211,21 @@ void HardwareSerial::end() {
     _rx_buffer_head = _rx_buffer_tail;
 }
 */
-void HardwareSerial::end() {}
+void HardwareSerial::end() {
+    uart_set_irq_enables(UART_MASTER_NUM, false, false);
+    irq_set_enabled(UART0_IRQ, false);
+    irq_remove_handler(UART0_IRQ, on_uart_irq_static);
+    gpio_set_function(UART_MASTER_TX_IO, GPIO_FUNC_SIO);
+    gpio_set_function(UART_MASTER_RX_IO, GPIO_FUNC_SIO);
+    gpio_set_dir(UART_MASTER_TX_IO, GPIO_IN);
+    gpio_set_dir(UART_MASTER_RX_IO, GPIO_IN);
+    gpio_disable_pulls(UART_MASTER_TX_IO);
+    gpio_disable_pulls(UART_MASTER_RX_IO);
+    uart_deinit(UART_MASTER_NUM);
+
+    // clear any received data
+    _rx_buffer_head = _rx_buffer_tail;
+}
 
 int HardwareSerial::available(void) { return ((unsigned int)(SERIAL_RX_BUFFER_SIZE + _rx_buffer_head - _rx_buffer_tail)) % SERIAL_RX_BUFFER_SIZE; }
 
