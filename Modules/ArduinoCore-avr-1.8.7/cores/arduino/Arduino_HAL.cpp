@@ -72,7 +72,7 @@ void pinMode(uint8_t pin, uint8_t mode) {
     }
 }
 
-#define FREQENCY_PWM (20000.f)
+#define FREQENCY_PWM (40000.f)
 
 #define USE_PIO_SVPWM 1
 #define USE_PIO_PWM 0
@@ -117,8 +117,6 @@ void _configure3PWM(long pwm_frequency, const int pinA, const int pinB, const in
 static PIO pio[3];
 static uint sm[3];
 static uint offset[3];
-
-#define FREQENCY_PWM (20000.f)
 
 void analogWrite(uint8_t pin, int value) {
     if (value < 0) value = 0;
