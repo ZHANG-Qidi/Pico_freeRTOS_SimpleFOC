@@ -21,7 +21,12 @@ target_link_libraries(arduino_core PUBLIC
     hardware_pwm
     hardware_timer
     hardware_clocks
+    hardware_pio
 )
+
+# Generate PIO header
+pico_generate_pio_header(arduino_core  ${CMAKE_CURRENT_LIST_DIR}/cores/arduino/svpwm.pio)
+pico_generate_pio_header(arduino_core  ${CMAKE_CURRENT_LIST_DIR}/cores/arduino/pwm.pio)
 
 if(FREERTOS_VARIANT STREQUAL "one_core")
 

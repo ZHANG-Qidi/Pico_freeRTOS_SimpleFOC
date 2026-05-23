@@ -7,6 +7,10 @@
 #include "hardware/pwm.h"
 #include "pico/stdlib.h"
 #include "pico/time.h"
+#include "pwm.pio.h"
+#include "pwm_src.h"
+#include "svpwm.pio.h"
+#include "svpwm_src.h"
 #include "task.h"
 
 // CPU / Global settings
@@ -68,6 +72,85 @@ void pinMode(uint8_t pin, uint8_t mode) {
     }
 }
 
+#define FREQENCY_PWM (20000.f)
+
+#define USE_PIO_SVPWM 1
+#define USE_PIO_PWM 0
+
+#if USE_PIO_SVPWM
+
+static PIO pio[3];
+static uint sm[3];
+static uint offset[3];
+
+void analogWrite(uint8_t pin, int value) {
+    if (value < 0) value = 0;
+    if (value > 255) value = 255;
+    uint8_t index = pin % 3;
+    uint period = ((clock_get_hz(clk_sys) / (float)FREQENCY_PWM) - 20.f) / 4.f;
+    uint32_t level = value / 255.0f * (float)period;
+    pio_pwm_set_level(pio[index], sm[index], level);
+}
+
+void analogWriteInit(uint8_t pin) {
+    uint8_t index = pin % 3;
+    pio_pwm_init(&pio[index], &sm[index], &offset[index], pin, FREQENCY_PWM);
+
+    uint sm_mask = 0b1111;  // Enable state machine 0 1 2 3
+    pio_clkdiv_restart_sm_mask(pio[index], sm_mask);
+    pio_interrupt_clear(pio[index], 0);
+}
+
+// function setting the high pwm frequency to the supplied pins
+// - BLDC motor - 3PWM setting
+// - hardware speciffic
+// in generic case dont do anything
+void _configure3PWM(long pwm_frequency, const int pinA, const int pinB, const int pinC) {
+    (void)(pwm_frequency);
+    analogWriteInit(pinA);
+    analogWriteInit(pinB);
+    analogWriteInit(pinC);
+}
+
+#elif USE_PIO_PWM
+
+static PIO pio[3];
+static uint sm[3];
+static uint offset[3];
+
+#define FREQENCY_PWM (20000.f)
+
+void analogWrite(uint8_t pin, int value) {
+    if (value < 0) value = 0;
+    if (value > 255) value = 255;
+    uint8_t index = pin % 3;
+    uint period = ((clock_get_hz(clk_sys) / (float)FREQENCY_PWM) - 10.f) / 2.f;
+    uint32_t level = value / 255.0f * (float)period;
+    pio_pwm_set_level_basic(pio[index], sm[index], level);
+}
+
+void analogWriteInit(uint8_t pin) {
+    uint8_t index = pin % 3;
+    pio_pwm_init_basic(&pio[index], &sm[index], &offset[index], pin, FREQENCY_PWM);
+
+    uint sm_mask = 0b1111;  // Enable state machine 0 1 2 3
+    pio_clkdiv_restart_sm_mask(pio[index], sm_mask);
+    pio_interrupt_clear(pio[index], 0);
+}
+
+// function setting the high pwm frequency to the supplied pins
+// - BLDC motor - 3PWM setting
+// - hardware speciffic
+// in generic case dont do anything
+void _configure3PWM(long pwm_frequency, const int pinA, const int pinB, const int pinC) {
+    (void)(pwm_frequency);
+    analogWriteInit(pinA);
+    analogWriteInit(pinB);
+    analogWriteInit(pinC);
+}
+
+#else
+
 void analogWrite(uint8_t pin, int value) {
     if (value < 0) value = 0;
     if (value > 255) value = 255;
@@ -81,7 +164,7 @@ void analogWriteInit(uint8_t pin) {
     uint slice = pwm_gpio_to_slice_num(pin);
     uint channel = pwm_gpio_to_channel(pin);
     uint32_t sys_clk = clock_get_hz(clk_sys);
-    float target_pwm_freq = 20000.0f;
+    float target_pwm_freq = FREQENCY_PWM;
     float wrap = 255.0f;
     float clkdiv = (float)sys_clk / (target_pwm_freq * (wrap + 1));
     pwm_set_clkdiv(slice, clkdiv);
@@ -107,3 +190,5 @@ void _configure3PWM(long pwm_frequency, const int pinA, const int pinB, const in
     uint32_t mask = (1u << sliceA) | (1u << sliceB) | (1u << sliceC);
     pwm_set_mask_enabled(mask);
 }
+
+#endif

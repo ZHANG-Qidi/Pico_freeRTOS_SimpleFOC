@@ -1,0 +1,56 @@
+;
+; Copyright (c) 2020 Raspberry Pi (Trading) Ltd.
+;
+; SPDX-License-Identifier: BSD-3-Clause
+;
+
+; Side-set pin 0 is used for PWM output
+.pio_version 0 // only requires PIO version 0
+
+.program svpwm
+.side_set 1 opt
+
+    irq wait 0
+.wrap_target
+low_first:
+    pull noblock side 0     ; Pull from FIFO to OSR if available, else copy X to OSR.
+    mov x, osr              ; Copy most-recently-pulled value back to scratch X
+    mov y, isr              ; ISR contains PWM period. Y used as counter.
+low_first_loop:
+    jmp x!=y low_first_noset
+    jmp high_first
+low_first_noset:
+    jmp y-- low_first_loop
+; 3 + (period - duty + 1) * 2
+
+high_first:
+    mov y, osr side 1 [2]
+high_first_loop:
+    jmp y-- high_first_loop [1]
+; 3 + (duty + 1) * 2
+
+high_second:
+    mov y, osr [2]
+high_second_loop:
+    jmp y-- high_second_loop [1]
+; 3 + (duty + 1) * 2
+
+low_second:
+    mov y, isr side 0 [2]
+low_second_loop:
+    jmp x!=y low_second_noset
+    nop
+.wrap
+low_second_noset:
+    jmp y-- low_second_loop
+; 3 + (period - duty + 1) * 2
+
+% c-sdk {
+static inline void svpwm_program_init(PIO pio, uint sm, uint offset, uint pin) {
+   pio_gpio_init(pio, pin);
+   pio_sm_set_consecutive_pindirs(pio, sm, pin, 1, true);
+   pio_sm_config c = svpwm_program_get_default_config(offset);
+   sm_config_set_sideset_pins(&c, pin);
+   pio_sm_init(pio, sm, offset, &c);
+}
+%}
