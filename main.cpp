@@ -36,18 +36,13 @@
 #define USE_LED 1
 #endif
 
-// Whether to busy wait in the led thread
-#ifndef LED_BUSY_WAIT
-#define LED_BUSY_WAIT 0
-#endif
-
 // Delay between led blinking
 #define LED_DELAY_MS 200
 
 // Priorities of our threads - higher numbers are higher priority
-#define MAIN_TASK_PRIORITY (tskIDLE_PRIORITY + 2UL)
-#define BLINK_TASK_PRIORITY (tskIDLE_PRIORITY + 1UL)
-#define WORKER_TASK_PRIORITY (tskIDLE_PRIORITY + 4UL)
+#define MAIN_TASK_PRIORITY (tskIDLE_PRIORITY + osPriorityBelowNormal)
+#define BLINK_TASK_PRIORITY (tskIDLE_PRIORITY + osPriorityLow)
+#define WORKER_TASK_PRIORITY (tskIDLE_PRIORITY + osPriorityNormal)
 
 // Stack sizes of our threads in words (4 bytes)
 #define MAIN_TASK_STACK_SIZE configMINIMAL_STACK_SIZE
@@ -58,14 +53,10 @@
 static async_context_freertos_t async_context_instance;
 
 // Create an async context
-static async_context_t* create_async_context(void) {
+static async_context_t *create_async_context(void) {
     async_context_freertos_config_t config = async_context_freertos_default_config();
     config.task_priority = WORKER_TASK_PRIORITY;      // defaults to ASYNC_CONTEXT_DEFAULT_FREERTOS_TASK_PRIORITY
     config.task_stack_size = WORKER_TASK_STACK_SIZE;  // defaults to ASYNC_CONTEXT_DEFAULT_FREERTOS_TASK_STACK_SIZE
-#if configSUPPORT_STATIC_ALLOCATION
-    static StackType_t async_context_freertos_task_stack[WORKER_TASK_STACK_SIZE];
-    config.task_stack = async_context_freertos_task_stack;
-#endif
     if (!async_context_freertos_init(&async_context_instance, &config)) return NULL;
     return &async_context_instance.core;
 }
@@ -91,101 +82,52 @@ static void init_led(void) {
 #endif
 }
 
-void blink_task(__unused void* params) {
+void blink_task(__unused void *params) {
     bool on = false;
     printf("blink_task starts\n");
     init_led();
     TickType_t last = xTaskGetTickCount();
     while (true) {
-#if configNUMBER_OF_CORES > 1
-        // static int last_core_id = -1;
-        // if (portGET_CORE_ID() != last_core_id) {
-        //     last_core_id = portGET_CORE_ID();
-        //     printf("blink task is on core %d\n", last_core_id);
-        // }
-#endif
+        vTaskDelayUntil(&last, pdMS_TO_TICKS(LED_DELAY_MS));
         set_led(on);
         on = !on;
-
-#if LED_BUSY_WAIT
-        // You shouldn't usually do this. We're just keeping the thread busy,
-        // experiment with BLINK_TASK_PRIORITY and LED_BUSY_WAIT to see what happens
-        // if BLINK_TASK_PRIORITY is higher than TEST_TASK_PRIORITY main_task won't get any free time to run
-        // unless configNUMBER_OF_CORES > 1
-        busy_wait_ms(LED_DELAY_MS);
-#else
-        vTaskDelayUntil(&last, pdMS_TO_TICKS(200));
-#endif
     }
 }
 #endif  // USE_LED
 
-// async workers run in their own thread when using async_context_freertos_t with priority WORKER_TASK_PRIORITY
-static void do_work(async_context_t* context, async_at_time_worker_t* worker) {
-    // async_context_add_at_time_worker_in_ms(context, worker, 1);
-    absolute_time_t next = delayed_by_ms(worker->next_time, 1);
-    async_context_add_at_time_worker_at(context, worker, next);
-    // static uint32_t count = 0;
-    // printf("Hello from worker count=%u\n", count++);
-#if configNUMBER_OF_CORES > 1
-    // static int last_core_id = -1;
-    // if (portGET_CORE_ID() != last_core_id) {
-    //     last_core_id = portGET_CORE_ID();
-    //     printf("worker is on core %d\n", last_core_id);
-    // }
-#endif
-    loop();
+void arduino_task(__unused void *params) {
+    setup();
+    TickType_t last = xTaskGetTickCount();
+    while (true) {
+        vTaskDelayUntil(&last, pdMS_TO_TICKS(1));
+        loop();
+    }
 }
+
+// async workers run in their own thread when using async_context_freertos_t with priority WORKER_TASK_PRIORITY
+static void do_work(async_context_t *context, async_at_time_worker_t *worker) { async_context_add_at_time_worker_in_ms(context, worker, 1); }
 async_at_time_worker_t worker_timeout = {.do_work = do_work};
 
-void main_task(__unused void* params) {
-    setup();
-    async_context_t* context = create_async_context();
+void main_task(__unused void *params) {
+    async_context_t *context = create_async_context();
     // start the worker running
     async_context_add_at_time_worker_in_ms(context, &worker_timeout, 0);
 #if USE_LED
     // start the led blinking
-#if configSUPPORT_STATIC_ALLOCATION
-    static StackType_t blink_stack[BLINK_TASK_STACK_SIZE];
-    static StaticTask_t blink_buf;
-    xTaskCreateStatic(blink_task, "BlinkThread", BLINK_TASK_STACK_SIZE, NULL, BLINK_TASK_PRIORITY, blink_stack, &blink_buf);
-#else
     static_assert(configSUPPORT_DYNAMIC_ALLOCATION, "");
     xTaskCreate(blink_task, "BlinkThread", BLINK_TASK_STACK_SIZE, NULL, BLINK_TASK_PRIORITY, NULL);
-#endif  // configSUPPORT_STATIC_ALLOCATION
 #endif  // USE_LED
-    // int count = 0;
+    xTaskCreate(arduino_task, "arduino_task", WORKER_TASK_STACK_SIZE, NULL, WORKER_TASK_PRIORITY, NULL);
+    TickType_t last = xTaskGetTickCount();
     while (true) {
-#if configNUMBER_OF_CORES > 1
-        // static int last_core_id = -1;
-        // if (portGET_CORE_ID() != last_core_id) {
-        //     last_core_id = portGET_CORE_ID();
-        //     printf("main task is on core %d\n", last_core_id);
-        // }
-#endif
-        // printf("Hello from main task count=%u\n", count++);
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        vTaskDelayUntil(&last, pdMS_TO_TICKS(LED_DELAY_MS));
     }
     async_context_deinit(context);
 }
 
 void vLaunch(void) {
-    TaskHandle_t task;
-#if configSUPPORT_STATIC_ALLOCATION
-    static StackType_t main_stack[MAIN_TASK_STACK_SIZE];
-    static StaticTask_t main_buf;
-    task = xTaskCreateStatic(main_task, "MainThread", MAIN_TASK_STACK_SIZE, NULL, MAIN_TASK_PRIORITY, main_stack, &main_buf);
-#else
     static_assert(configSUPPORT_DYNAMIC_ALLOCATION, "");
-    xTaskCreate(main_task, "MainThread", MAIN_TASK_STACK_SIZE, NULL, MAIN_TASK_PRIORITY, &task);
-#endif  // configSUPPORT_STATIC_ALLOCATION
-#if configUSE_CORE_AFFINITY && configNUMBER_OF_CORES > 1
-    // we must bind the main task to one core (well at least while the init is called)
-    vTaskCoreAffinitySet(task, 1);
-#else
-    (void)task;
-#endif
-
+    xTaskCreate(main_task, "MainThread", MAIN_TASK_STACK_SIZE, NULL, MAIN_TASK_PRIORITY, NULL);
     /* Start the tasks and timer running. */
     vTaskStartScheduler();
 }
@@ -194,17 +136,10 @@ int main(void) {
     stdio_init_all();
 
     /* Configure the hardware ready to run the demo. */
-    const char* rtos_name;
-#if (configNUMBER_OF_CORES > 1)
-    rtos_name = "FreeRTOS SMP";
-#else
+    const char *rtos_name;
     rtos_name = "FreeRTOS";
-#endif
 
-#if (configNUMBER_OF_CORES > 1)
-    printf("Starting %s on both cores:\n", rtos_name);
-    vLaunch();
-#elif (RUN_FREE_RTOS_ON_CORE == 1 && configNUMBER_OF_CORES == 1)
+#if (RUN_FREE_RTOS_ON_CORE == 1 && configNUMBER_OF_CORES == 1)
     printf("Starting %s on core 1:\n", rtos_name);
     multicore_launch_core1(vLaunch);
     while (true);

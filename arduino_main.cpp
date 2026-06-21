@@ -18,7 +18,7 @@ BLDCDriver3PWM driver = BLDCDriver3PWM(MOTOR_U, MOTOR_V, MOTOR_W, MOTOR_EN);
 float target_voltage = 2;
 // instantiate the commander
 Commander command = Commander(Serial);
-void doTarget(char* cmd) { command.scalar(&target_voltage, cmd); }
+void doTarget(char *cmd) { command.scalar(&target_voltage, cmd); }
 
 void setup(void) {
     // initialise magnetic sensor hardware
@@ -32,7 +32,7 @@ void setup(void) {
     motor.linkDriver(&driver);
 
     // aligning voltage
-    motor.voltage_sensor_align = 5;
+    motor.voltage_sensor_align = 1;
     // choose FOC modulation (optional)
     motor.foc_modulation = FOCModulationType::SpaceVectorPWM;
     // set motion control loop to be used
@@ -49,7 +49,7 @@ void setup(void) {
     motor.initFOC();
 
     // add target command T
-    command.add('T', doTarget, (char*)"target voltage");
+    command.add('T', doTarget, (char *)"target voltage");
 
     Serial.println(F("Motor ready."));
     Serial.println(F("Set the target voltage using serial terminal:"));
@@ -74,4 +74,3 @@ void loop(void) {
     // float angle = sensor.getAngle();
     // Serial.println(angle);
 }
-
