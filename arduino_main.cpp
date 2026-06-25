@@ -56,7 +56,12 @@ void setup(void) {
     _delay(1000);
 }
 
+#include "arduino_main.h"
+#include "pico/stdlib.h"
+
 void loop(void) {
+    uint32_t start = time_us_32();
+
     // main FOC algorithm function
     // the faster you run this function the better
     // Arduino UNO loop  ~1kHz
@@ -71,6 +76,37 @@ void loop(void) {
 
     // user communication
     command.run();
+
+    uint32_t end = time_us_32();
+    uint32_t duration = end - start;
+
+    static int dividerCounter;
+    const int dividerFactor = 10.f * 1000.f / ARDUINO_LOOP_PERIOD;
+
+    if (++dividerCounter < dividerFactor) {
+        return;
+    }
+    dividerCounter = 0;
+
+    char duration_str[32];
+    sprintf(duration_str, "%06u", duration);
+    Serial.println(duration_str);
+
     // float angle = sensor.getAngle();
-    // Serial.println(angle);
+    // char angle_str[32];
+    // sprintf(angle_str, "%07.3f", angle);
+    // Serial.println(angle_str);
+
+    // float current_velocity = motor.shaft_velocity;
+    // char current_velocity_str[32];
+    // sprintf(current_velocity_str, "%07.3f", current_velocity);
+    // Serial.println(current_velocity_str);
+
+    // float current_velocity = motor.shaft_velocity;
+    // float shaft_velocity = current_velocity;
+    // float rps = shaft_velocity / (2.0f * M_PI);
+    // float rpm = rps * 60.0f;
+    // char rpm_str[32];
+    // sprintf(rpm_str, "%07.3f", rpm);
+    // Serial.println(rpm_str);
 }

@@ -18,6 +18,7 @@
 #include "hardware/uart.h"
 #include "pico/multicore.h"
 #include "pico/stdlib.h"
+#include "arduino_main.h"
 
 #ifdef CYW43_WL_GPIO_LED_PIN
 #include "pico/cyw43_arch.h"
@@ -95,11 +96,21 @@ void blink_task(__unused void *params) {
 }
 #endif  // USE_LED
 
+TaskHandle_t arduino_task_handle = NULL;
+
+bool repeating_timer_callback(struct repeating_timer *t) {
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    vTaskNotifyGiveFromISR(arduino_task_handle, &xHigherPriorityTaskWoken);
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    return true;
+}
+
 void arduino_task(__unused void *params) {
     setup();
-    TickType_t last = xTaskGetTickCount();
+    // TickType_t last = xTaskGetTickCount();
     while (true) {
-        vTaskDelayUntil(&last, pdMS_TO_TICKS(1));
+        // vTaskDelayUntil(&last, pdMS_TO_TICKS(1));
+        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
         loop();
     }
 }
@@ -117,7 +128,9 @@ void main_task(__unused void *params) {
     static_assert(configSUPPORT_DYNAMIC_ALLOCATION, "");
     xTaskCreate(blink_task, "BlinkThread", BLINK_TASK_STACK_SIZE, NULL, BLINK_TASK_PRIORITY, NULL);
 #endif  // USE_LED
-    xTaskCreate(arduino_task, "arduino_task", WORKER_TASK_STACK_SIZE, NULL, WORKER_TASK_PRIORITY, NULL);
+    xTaskCreate(arduino_task, "arduino_task", WORKER_TASK_STACK_SIZE, NULL, WORKER_TASK_PRIORITY, &arduino_task_handle);
+    static struct repeating_timer timer;
+    add_repeating_timer_us(-ARDUINO_LOOP_PERIOD, repeating_timer_callback, NULL, &timer);
     TickType_t last = xTaskGetTickCount();
     while (true) {
         vTaskDelayUntil(&last, pdMS_TO_TICKS(LED_DELAY_MS));
