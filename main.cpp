@@ -10,6 +10,7 @@
 #include "Arduino.h"
 #include "Arduino_interface.h"
 #include "HardwareSerial.h"
+#include "arduino_main.h"
 #include "common/base_classes/Sensor.h"
 #include "hardware/clocks.h"
 #include "hardware/i2c.h"
@@ -18,7 +19,6 @@
 #include "hardware/uart.h"
 #include "pico/multicore.h"
 #include "pico/stdlib.h"
-#include "arduino_main.h"
 
 #ifdef CYW43_WL_GPIO_LED_PIN
 #include "pico/cyw43_arch.h"
