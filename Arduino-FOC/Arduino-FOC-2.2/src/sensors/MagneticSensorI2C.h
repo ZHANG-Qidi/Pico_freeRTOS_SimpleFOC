@@ -42,7 +42,8 @@ class MagneticSensorI2C : public Sensor {
     static MagneticSensorI2C AS5600();
 
     /** sensor initialise pins */
-    void init(TwoWire *_wire = &Wire);
+    void init() override { init(&Wire); };
+    void init(TwoWire *_wire);
 
     // implementation of abstract functions of the Sensor class
     /** get current angle (rad) */

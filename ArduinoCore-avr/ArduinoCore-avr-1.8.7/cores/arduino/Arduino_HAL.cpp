@@ -24,6 +24,8 @@ void delay(unsigned long ms) {
     }
 }
 
+unsigned long millis(void) { return (unsigned long)time_us_64() / 1000; }
+
 unsigned long micros(void) { return (unsigned long)time_us_64(); }
 
 void digitalWrite(uint8_t pin, uint8_t val) { gpio_put(pin, val); }
