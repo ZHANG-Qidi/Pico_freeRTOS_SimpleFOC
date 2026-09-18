@@ -77,7 +77,7 @@ void loop(void) {
     // user communication
     command.run();
 
-    uint32_t end = micros();
+    // uint32_t end = micros();
     // int duration = end - start;
 
     static int dividerCounter;
